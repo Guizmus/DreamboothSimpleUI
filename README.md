@@ -17,8 +17,8 @@ The training UI itself isn't ready yet.
 ## Install
 
 
-    ```bash
+    
     git clone https://github.com/Guizmus/DreamboothSimpleUI
 	cd DreamboothSimpleUI
 	UI.bat
-    ```
+    
