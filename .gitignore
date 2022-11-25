@@ -1,1 +1,10 @@
-data/
+data/datasets/
+data/diffusers/
+data/log/
+output/
+code/stdout.txt
+code/stderr.txt
+venv/
+code/resources/
+ShivamExample-1-5.bat
+ShivamExample-2-0.bat
