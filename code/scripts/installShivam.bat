@@ -40,12 +40,12 @@ call pip install git+https://github.com/ShivamShrirao/diffusers.git
 echo Installing requirements
 cd code/resources/shivam/examples/dreambooth 
 (
-  echo accelerate
-  echo transformers^>=4.21.0
-  echo ftfy
-  echo albumentations
-  echo tensorboard
-  echo modelcards
+echo accelerate
+echo transformers^>=4.21.0
+echo ftfy
+echo albumentations
+echo tensorboard
+echo modelcards
 ) > requirements.txt
 call pip install -U -r requirements.txt 
 call pip install --upgrade git+https://github.com/huggingface/diffusers.git transformers accelerate scipy 

@@ -6,8 +6,11 @@ sg.theme('Topanga')
 
 scripts = [
     ["ShivamShrirao","code\\scripts\\installShivam.bat","code\\resources\\shivam\\"],
+    ["EveryDream","code\\scripts\\installEveryDream.bat","code\\resources\\everydream\\"],
     ["1.5 diffusers with updated VAE","code\\scripts\\installDiffusers1-5.bat","data\\diffusers\\SD-1.5-VAE\\"],
-    ["2.0 diffusers (512)","code\\scripts\\installDiffusers2-0.bat","data\\diffusers\\SD-2.0\\"],
+    ["2.0 diffusers (512)","code\\scripts\\installDiffusers2-0-512.bat","data\\diffusers\\SD-2.0-512\\"],
+    ["2.0 diffusers (768)","code\\scripts\\installDiffusers2-0-768.bat","data\\diffusers\\SD-2.0-768\\"],
+    ["2.0 diffusers (4xUp)","code\\scripts\\installDiffusers2-0-4xUpscaler.bat","data\\diffusers\\SD-2.0-4xUpscaler\\"],
     ["Example run dataset","code\\scripts\\installExample.bat","data\\datasets\\example\\"]
 ]
 

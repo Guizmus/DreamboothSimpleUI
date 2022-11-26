@@ -30,4 +30,4 @@ if not exist %VENV_NAME%\ (
 )
 
 echo Starting UI
-call python code/scripts/installUI.py
+call python code/scripts/UI.py
