@@ -1,9 +1,11 @@
 @echo off
 cls
+echo Activating environment
 call activate venv/shivam/
 set "CURPATH=%~dp0"
 cd code/resources/shivam/examples/dreambooth
 
+echo Starting training
 call accelerate launch --num_cpu_threads_per_process 6 train_dreambooth.py ^
   --pretrained_model_name_or_path="%CURPATH%data/diffusers/SD-2.0/" ^
   --output_dir="%CURPATH%/output/2.0-Shivam-Test" ^
@@ -28,4 +30,5 @@ call accelerate launch --num_cpu_threads_per_process 6 train_dreambooth.py ^
   
   
 cd ../../../../..
+echo Training ended
 pause

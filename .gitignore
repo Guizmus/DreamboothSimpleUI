@@ -1,6 +1,7 @@
 data/datasets/
 data/diffusers/
 data/log/
+data/ckpt/
 output/
 code/stdout.txt
 code/stderr.txt
