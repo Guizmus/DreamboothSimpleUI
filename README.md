@@ -1,6 +1,6 @@
 # DreamboothSimpleUI
 
-This is a simple installer for ShivamShirao for now. It's meant to be used on Windows computer with at least 12GB VRAM Nivia cards.
+This is a simple installer for ShivamShirao, Everydream and diffusers for now. It's meant to be used on Windows computer with at least 12GB VRAM Nivia cards.
 
 It requires you to have Conda installed, in Path and initialised ("conda init cmd.exe")
 
