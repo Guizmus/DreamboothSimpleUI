@@ -554,7 +554,6 @@ class JobList:
                 self.processList.pop(i)
                 os.startfile(job.params['output'])
                 window['-STATUSBAR-']("Job has ended")
-                print(poll)
     def deleteJob(self,i):
         job=self.get(i)
         self.list[i-1]=None
