@@ -177,7 +177,7 @@ class DiffusersComparator:
             [
                 sg.T("Path to diffusers",tooltip="The sets of diffusers to compare should be listed here."),
                 sg.In("",visible=False,key=job.key+"-CALLBACK-diffusers_add",enable_events=True),
-                sg.FolderBrowse("Add",initial_folder='output',key=job.key+"-BUTTON-diffusers_browse",visible=False),
+                sg.FolderBrowse("Add",initial_folder='data/diffusers',key=job.key+"-BUTTON-diffusers_browse",visible=False),
                 sg.Button(image_filename="code/resources/images/plus_small.png",image_size=(20,20),image_subsample=4,button_color="white",pad=(5,5),key=job.key+"-CALLBACK-diffusers_add_image-"+str(i),tooltip="Add a new set of diffusers to test to the list."),
             ],
             [

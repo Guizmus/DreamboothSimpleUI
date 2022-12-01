@@ -7,4 +7,6 @@ code/stdout.txt
 code/stderr.txt
 venv/
 code/resources/
+code/scripts/lib/__pycache__/
 *.example.bat
+UI_*.bat
