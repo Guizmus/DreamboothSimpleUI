@@ -3,8 +3,8 @@ from sys import executable
 import PySimpleGUI as sg
 import subprocess
 
-# devmode = False
-devmode = True
+devmode = False
+# devmode = True
 visivility_queue = devmode
 
 sg.theme('Dark Black')
