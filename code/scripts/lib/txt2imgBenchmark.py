@@ -71,6 +71,19 @@ def centered_text_image(txt,size,bgColor="white",fontColor="black"):
     draw.text(((W-w)/2, (H-h)/2), txt, font=font, fill=fontColor)
     return transforms.ToTensor()(image)
     
+def prepare_grid_row(prompts,prompts_per_grid,size,title):
+    grids = []
+    nb_prompts = len(prompts)
+    prompts_left = nb_prompts
+    while prompts_left > 0:
+        new_grid=[centered_text_image(title,size)]
+        for j in range(min(prompts_left,prompts_per_grid)):
+            new_grid.append(centered_text_image(prompts[prompts_left-1],size))
+            prompts_left -= 1
+        grids.append(new_grid)
+    return grids
+    
+
 def compareConfigs(
     configsToTest=[{
         "model_path":"data/diffusers/SD-1.5-VAE",
@@ -82,7 +95,10 @@ def compareConfigs(
     n_samples=2,
     save_images=False,
     save_grid=True,
-    size=(512,512)
+    size=(512,512),
+    max_grid_cols=10,
+    max_grid_rows=10,
+    title=""
 ):
     if (not save_images) and (not save_grid):
         print("No need to run if we don't save anything")
@@ -108,18 +124,25 @@ def compareConfigs(
     else: #nothing to replace in prompt = only 1 prompt to run
         prompts=[prompt_template]
     nb_prompts=len(prompts)
+    nb_configs=len(configsToTest)
+    print(str(nb_prompts)+" prompts to run on "+str(nb_configs)+" configurations")
+    print(str(n_samples)+" samples per prompt. "+str(nb_configs*nb_prompts*n_samples)+" total images.")
 
-    print(str(nb_prompts)+" prompts to run on "+str(len(configsToTest))+" configurations")
-    print(str(n_samples)+" samples per prompt. "+str(len(configsToTest)*len(prompts)*n_samples)+" total images.")
-
-    conf_index = 0
     all_images = []
     first_seed=random.randint(100000,9999999)
     if save_grid:
-        gridlist=[centered_text_image("",size)]
-        for i in range(nb_prompts):
-            gridlist.append(centered_text_image(prompts[nb_prompts-i-1],size))
-    for config in configsToTest:
+        prompts_per_grid=nb_prompts
+        while prompts_per_grid > max_grid_cols:
+            prompts_per_grid = int(prompts_per_grid/2)
+        promps_per_grid = max(1,prompts_per_grid)
+        configs_per_grid = nb_configs
+        while configs_per_grid*n_samples > max_grid_rows:
+            configs_per_grid = int(configs_per_grid/2)
+        configs_per_grid = max(1,configs_per_grid)
+        # grids = prepare_grid_row(prompts,prompts_per_grid,size)
+                
+    for conf_index in range(len(configsToTest)):
+        config = configsToTest[conf_index]
         #start of a configuration run
         config = defaultConfig | config
         print("Loading config #"+str(conf_index)+" ",config)
@@ -171,24 +194,22 @@ def compareConfigs(
                 img.save(output_path+"/"+f'{img_index:04d}'+"Conf"+str(conf_index)+"-seed" + str(seed) + ".png")
                 img_index+=1
         if save_grid:
-            prompt_index = 0
-            repeat_index = 1
-            for img in images_to_save:
-                if prompt_index == 0:
-                    gridlist.append(centered_text_image("Config "+str(conf_index)+" - Iteration "+str(repeat_index)+"\n"+configToText(config),size))
-                    repeat_index += 1
-                gridlist.append(transforms.ToTensor()(img))
-                prompt_index += 1
-                if prompt_index >= nb_prompts:
-                    prompt_index = 0
-        conf_index+=1
-        
-    if save_grid:
-        grid = make_grid(gridlist, nrow=nb_prompts+1)
-        img = transforms.ToPILImage()(grid)
-        img_index=len(os.listdir(output_path))
-        grid_name=f'{img_index:04d}'+"-Grid.png"
-        img.save(output_path+"/"+grid_name)
-        print("Grid saved : "+grid_name)
+            if conf_index % configs_per_grid == 0:
+                grids = prepare_grid_row(prompts,prompts_per_grid,size,title)
+                
+            for i in range(len(images_to_save)):
+                img=images_to_save[i]
+                grid_index = int(i/(promps_per_grid)) % len(grids)
+                if i % promps_per_grid == 0:
+                    grids[grid_index].append(centered_text_image("Config "+str(conf_index)+" - Iteration "+str(int(i/nb_prompts)+1)+"\n"+configToText(config),size))
+                grids[grid_index].append(transforms.ToTensor()(img))
+            if ((conf_index+1) % configs_per_grid == 0) or (conf_index  == len(configsToTest) -1):
+                for grid in grids:
+                    gridTensor = make_grid(grid, nrow=promps_per_grid+1)
+                    img = transforms.ToPILImage()(gridTensor)
+                    img_index=len(os.listdir(output_path))
+                    grid_name=f'{img_index:04d}'+"-Grid.png"
+                    img.save(output_path+"/"+grid_name)
+                    print("Grid saved : "+grid_name)
         
     print("Comparison finished and saved at "+output_path)

@@ -3,6 +3,7 @@ from sys import executable
 import PySimpleGUI as sg
 import subprocess
 
+# devmode = False
 devmode = False
 visivility_queue = devmode
 
@@ -92,16 +93,24 @@ class DiffusersComparator:
         saveParametersFrame = sg.Frame("Save parameters",[
             [
                 sg.T("Output folder",tooltip="Defaults to output/images, folder where the pictures and the grid will be saved"),
-                sg.FolderBrowse(initial_folder=job.params['output'],target=job.key+"-TEXT-output",tooltip="Defaults to output/images, folder where the pictures and the grid will be saved")
-            ],
-            [
-                sg.T(job.params['output'],key=job.key+"-TEXT-output",size=(25,1),justification="right",tooltip="Defaults to output/images, folder where the pictures and the grid will be saved")
+                sg.FolderBrowse(initial_folder=job.params['output'],target=job.key+"-TEXT-output",tooltip="Defaults to output/images, folder where the pictures and the grid will be saved"),
+                sg.T(job.params['output'],key=job.key+"-TEXT-output",size=(15,1),justification="right",tooltip="Defaults to output/images, folder where the pictures and the grid will be saved")
             ],
             [
                 sg.P(),
                 sg.Checkbox("Save grid",key=job.key+"-CHECKBOX-save_grid",tooltip="If checked, a grid of pictures will be saved.",default=job.params['save_grid']),
                 sg.P(),
                 sg.Checkbox("Save pictures",key=job.key+"-CHECKBOX-save_pics",tooltip="If checked, all pictures will be saved.",default=job.params['save_pics']),
+                sg.P(),
+            ],
+            [
+                sg.P(),
+                sg.T("Max grid size",tooltip="If the configurations you want to test get bigger, the grid will get split in multiple grids."),
+                sg.T("Height",tooltip="Max pictures height of a grid."),
+                sg.Spin([i for i in range(2,30)],initial_value=job.params["grid_height"],key=job.key+"-SPIN-grid_height",size=(2,1),tooltip="Max pictures height of a grid."),
+                sg.P(),
+                sg.T("Width",tooltip="Max pictures width of a grid."),
+                sg.Spin([i for i in range(2,30)],initial_value=job.params["grid_width"],key=job.key+"-SPIN-grid_width",size=(2,1),tooltip="Max pictures width of a grid."),
                 sg.P(),
             ]
         ],expand_x=True,expand_y=True)
@@ -261,7 +270,6 @@ class DiffusersComparator:
             for i in range(len(job.params["prompt_alias"])):
                DiffusersComparator.prompt_alias_delete(job,i)
             concept_list = promptFile.get("concept_list")
-            print(concept_list)
             for i in range(len(concept_list)):
                DiffusersComparator.prompt_alias_add(job,concept_list[i]['alias'],concept_list[i]['values'])
             window['-STATUSBAR-']("Concept list imported from JSON.")
@@ -315,6 +323,7 @@ class DiffusersComparator:
             aliasFile = sg.UserSettings(filename=value)
             window[job.key+"-CALLBACK-prompt_alias_key-"+str(i)].update(value=aliasFile.get("alias"))
             window[job.key+"-CALLBACK-prompt_alias_val-"+str(i)].update(value=aliasFile.get("values"))
+            job.params["prompt_alias"][i] = {"key":aliasFile.get("alias"),"val":aliasFile.get("values")}
             window['-STATUSBAR-']("Alias imported from JSON.")
             
         if callback_type == "prompt_alias_export_image":
@@ -370,6 +379,8 @@ class DiffusersComparator:
             ("steps","INPUT"),
             ("negative_prompt","INPUT"),
             ("prompt_template","INPUT"),
+            ("grid_height","SPIN"),
+            ("grid_width","SPIN"),
         ]
     #all params used for a job of this type with their default values
     def default_job_params():
@@ -377,6 +388,8 @@ class DiffusersComparator:
             'active':False,
             'output':os.getcwd()+'/output/images/',
             'save_grid':True,
+            'grid_height':8,
+            'grid_width':8,
             'save_pics':False,
             'size':"512",
             'height':"",
@@ -439,8 +452,8 @@ class DiffusersComparator:
         if len(errors) > 0:
             sg.popup_error("Can't start the job "+params["title"],"\n".join(errors))
         else:
-            if sg.popup_ok_cancel("Are you sure you want to start this job ?"):
-                return subprocess.Popen([executable, "code/scripts/doJob_DiffusersComparator.py","--jobJSON",job.saveJSON])
+            # if sg.popup_ok_cancel("Are you sure you want to start this job ?") == 'ok':
+            return subprocess.Popen([executable, "code/scripts/doJob_DiffusersComparator.py","--jobJSON",job.saveJSON])
         return False
             
 
