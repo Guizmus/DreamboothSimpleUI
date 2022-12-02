@@ -10,3 +10,5 @@ code/resources/
 code/scripts/lib/__pycache__/
 *.example.bat
 UI_*.bat
+settings/jobqueue/
+settings/prompts/

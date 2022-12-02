@@ -20,7 +20,8 @@ def parse_args():
 
 args = parse_args()
 
-params = UserSettings(filename="settings/jobqueue/"+args.jobJSON)['params']
+settings = UserSettings(filename="settings/jobqueue/"+args.jobJSON)
+params = settings['params']
 
 prompt_values = {}
 for alias in params["prompt_alias"]:
@@ -64,4 +65,7 @@ compareConfigs(
     save_images=params['save_pics'],
     save_grid=params['save_grid'],
     size=size,
+    title=params["title"],
+    max_grid_cols=params["grid_height"],
+    max_grid_rows=params["grid_width"],
 )
