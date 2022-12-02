@@ -51,14 +51,14 @@ defaultConfig={
     "scheduler":"euler_a",
     "seed":-1
 }
-def configToText(config):
+def configToText(config,iteration_count):
     path = config["model_path"].split("/")
     
     output = "Model : "+path.pop()+"\n"
     if config["negative_prompt"] != "":
         output += "NP : "+config["negative_prompt"]+"\n"
     output += config["scheduler"] +"\n" + str(config["steps"]) + " steps\ncfg "+str(config["cfg"])+"\n"
-    output += "Seed : " + str(config["seed"])
+    output += "Seed : " + str(config["seed"]+iteration_count-1)
     return output
 
 font = ImageFont.truetype("code/resources/fonts/Gidole-Regular.ttf", size=50)
@@ -75,10 +75,13 @@ def prepare_grid_row(prompts,prompts_per_grid,size,title):
     grids = []
     nb_prompts = len(prompts)
     prompts_left = nb_prompts
+    max_char = 20
     while prompts_left > 0:
         new_grid=[centered_text_image(title,size)]
         for j in range(min(prompts_left,prompts_per_grid)):
-            new_grid.append(centered_text_image(prompts[prompts_left-1],size))
+            prompt = prompts[prompts_left-1]
+            prompt = "\n".join([prompt[i:i+max_char] for i in range(0, len(prompt), max_char)])
+            new_grid.append(centered_text_image(prompt,size))
             prompts_left -= 1
         grids.append(new_grid)
     return grids
@@ -100,6 +103,8 @@ def compareConfigs(
     max_grid_rows=10,
     title=""
 ):
+    max_grid_rows += 1
+    max_grid_cols += 1
     if (not save_images) and (not save_grid):
         print("No need to run if we don't save anything")
         return False
@@ -199,13 +204,18 @@ def compareConfigs(
                 
             for i in range(len(images_to_save)):
                 img=images_to_save[i]
-                grid_index = int(i/(promps_per_grid)) % len(grids)
-                if i % promps_per_grid == 0:
-                    grids[grid_index].append(centered_text_image("Config "+str(conf_index)+" - Iteration "+str(int(i/nb_prompts)+1)+"\n"+configToText(config),size))
+                grid_column = i % nb_prompts
+                grid_index = int(grid_column/(promps_per_grid))
+                iteration_count = int(i/nb_prompts)+1
+                if grid_column % promps_per_grid == 0:
+                    grids[grid_index].append(centered_text_image("Config "+str(conf_index)+" - Iteration "+str(iteration_count)+"\n"+configToText(config,iteration_count),size))
                 grids[grid_index].append(transforms.ToTensor()(img))
             if ((conf_index+1) % configs_per_grid == 0) or (conf_index  == len(configsToTest) -1):
+                #outputing the grids
+                prompts_left = nb_prompts
                 for grid in grids:
-                    gridTensor = make_grid(grid, nrow=promps_per_grid+1)
+                    gridTensor = make_grid(grid, nrow=min(promps_per_grid,prompts_left)+1)
+                    prompts_left -= promps_per_grid
                     img = transforms.ToPILImage()(gridTensor)
                     img_index=len(os.listdir(output_path))
                     grid_name=f'{img_index:04d}'+"-Grid.png"

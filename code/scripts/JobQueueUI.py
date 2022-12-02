@@ -4,7 +4,7 @@ import PySimpleGUI as sg
 import subprocess
 
 # devmode = False
-devmode = False
+devmode = True
 visivility_queue = devmode
 
 sg.theme('Dark Black')
@@ -593,41 +593,42 @@ while True:
     event, values = window.read(timeout=500 if len(jobs.processList)>0 else None)
     if event == "__TIMEOUT__":
         jobs.update_process()
-    elif event is None:
-        break
-    elif event == sg.WIN_CLOSED:
-        break
-    elif event.find("::") != -1:
-        event = event.split("::")[1]
+    else:
+        if event is None:
+            break
+        elif event == sg.WIN_CLOSED:
+            break
+        elif event.find("::") != -1:
+            event = event.split("::")[1]
+            
+        subevent = event.split('-')
+        if devmode:
+            print("Event : ",event)
         
-    subevent = event.split('-')
-    if devmode:
-        print("Event : ",event)
-    
-    if subevent[0] == "JOBQUEUE":#jobqueue management
-        if subevent[1]=="MENU":#top menu
-            job = jobs.new(subevent[2])
-            window['-STATUSBAR-']("New job created : "+job.params['title'])
-        elif subevent[1]=="DROPDOWN":#dropdown on top of the jobs list
-            jobType = values[event].replace(" ","")
-            if TypesLayouts[jobType]:
-                job = jobs.new(jobType)
-                window[event].update(set_to_index=0)
+        if subevent[0] == "JOBQUEUE":#jobqueue management
+            if subevent[1]=="MENU":#top menu
+                job = jobs.new(subevent[2])
                 window['-STATUSBAR-']("New job created : "+job.params['title'])
-    
-    elif subevent[0] == "JOB": #tabs management
-        i = int(subevent[1])
-        job = jobs.get(i)
-        if subevent[2]=="SAVE_CHANGES":#save button in tab
-            job = jobs.saveChanges(i)
-            window['-STATUSBAR-']("Job saved as "+job.saveJSON)
-        elif subevent[2]=="DELETE":#trash button in tab
-            file = settings_path+"/"+(job.saveJSON)
-            if sg.popup_ok_cancel("Are you sure you want to delete this job from the queue ?"):
-                jobs.deleteJob(i)
-                window['-STATUSBAR-']("Job deleted")
-        elif subevent[2] == "CALLBACK":
-            job.callback(subevent[3],event,values)
-        elif subevent[2] == "DO_JOB":
-            jobs.check_and_start(i)
+            elif subevent[1]=="DROPDOWN":#dropdown on top of the jobs list
+                jobType = values[event].replace(" ","")
+                if TypesLayouts[jobType]:
+                    job = jobs.new(jobType)
+                    window[event].update(set_to_index=0)
+                    window['-STATUSBAR-']("New job created : "+job.params['title'])
+        
+        elif subevent[0] == "JOB": #tabs management
+            i = int(subevent[1])
+            job = jobs.get(i)
+            if subevent[2]=="SAVE_CHANGES":#save button in tab
+                job = jobs.saveChanges(i)
+                window['-STATUSBAR-']("Job saved as "+job.saveJSON)
+            elif subevent[2]=="DELETE":#trash button in tab
+                file = settings_path+"/"+(job.saveJSON)
+                if sg.popup_ok_cancel("Are you sure you want to delete this job from the queue ?"):
+                    jobs.deleteJob(i)
+                    window['-STATUSBAR-']("Job deleted")
+            elif subevent[2] == "CALLBACK":
+                job.callback(subevent[3],event,values)
+            elif subevent[2] == "DO_JOB":
+                jobs.check_and_start(i)
 window.close()
