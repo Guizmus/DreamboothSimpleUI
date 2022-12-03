@@ -3,7 +3,9 @@ from sys import executable, path
 import PySimpleGUI as sg
 import subprocess
 path.insert(1, 'code/scripts/lib/')
-from DiffusersComparator import DiffusersComparator
+from LayoutTypes import DiffusersComparator,ShivamShrirao
+# from DiffusersComparator import DiffusersComparator
+# from ShivamShrirao import ShivamShrirao
 
 devmode = False
 # devmode = True
@@ -16,7 +18,8 @@ sg.theme('Dark Black')
 
 #list of the types of jobs
 TypesLayouts={
-    "DiffusersComparator" : DiffusersComparator
+    "DiffusersComparator" : DiffusersComparator,
+    "ShivamShrirao" : ShivamShrirao,
 }
 dropdown_options = ['-NEW JOB-']
 menu_options = []
@@ -33,7 +36,8 @@ JobQueue=sg.Col([
 ],key="HOOK-jobqueue_col",visible=visivility_queue)
 
 TabZone=[[
-    sg.TabGroup([[]],key="HOOK-jobtabs_tabgroup",tab_location="topleft",expand_y=True,expand_x=True,size=(590,500))
+    # sg.TabGroup([[]],key="HOOK-jobtabs_tabgroup",tab_location="topleft",expand_y=True,expand_x=True,size=(590,500))
+    sg.TabGroup([[]],key="HOOK-jobtabs_tabgroup",tab_location="topleft",expand_y=True,expand_x=True,size=(800,650))
 ]]
 
 menu_def=[['&New job',menu_options]]
@@ -173,7 +177,6 @@ for file in os.listdir(settings_path):
     if file.endswith(".queue.json"):
         settings = sg.UserSettings(filename=settings_path+"/"+file)
         jobs.new(settings.get("type"),fromParams=file) #adding them to layout
-
 #Event loop    
 while True:
     event, values = window.read(timeout=500 if len(jobs.processList)>0 else None)
